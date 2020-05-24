@@ -25,7 +25,7 @@ class MaskInput extends StreamlitComponentBase<State> {
   public state = { numClicks: 0 }
 
   /** A reference to the canvas object so we can get its data. */
-  canvas?: CanvasDraw; 
+  canvasDraw?: CanvasDraw; 
   
   public render = (): ReactNode => {
     // Arguments that are passed to the plugin in Python are accessible
@@ -44,18 +44,18 @@ class MaskInput extends StreamlitComponentBase<State> {
           Click Me!
         </button>
         <CanvasDraw
-          ref={(canvasDraw: CanvasDraw) => (this.canvas = canvasDraw)}
+          ref={(canvasDraw: CanvasDraw) => (this.canvasDraw = canvasDraw)}
           onChange={this.onCanvasChange} />
       </>
     )
   }
 
-  /** Click handler for our "Click Me!" button. */
-  private onCanvasChange = (...args : any[]): void => {
+    /** Sets the Streamlit component value and sends a consoleMsg. */
+  private setComponentValue = (value: object, consoleMsg: object): void => {
     // Removes circular refernces from the console obect.
     const getCircularReplacer = () => {
       const seen = new WeakSet();
-      return (key: string, value: any) => {
+      return (_key: string, value: any) => {
         if (typeof value === "object" && value !== null) {
           if (seen.has(value)) {
             return;
@@ -65,17 +65,27 @@ class MaskInput extends StreamlitComponentBase<State> {
         return value;
       };
     };
+    
+    const toJSON = (x: object) => {
+      return  JSON.parse(JSON.stringify(x, getCircularReplacer()));
+    }
 
+    // Set the state properly.
+    Streamlit.setComponentValue({
+        'value': value,
+        'consoleMsg': toJSON(consoleMsg),
+    })
+  }
+
+  /** Click handler for our "Click Me!" button. */
+  private onCanvasChange = (..._args : any[]): void => {
     // Set the state properly.
     this.setState(
       prevState => ({ numClicks: prevState.numClicks + 200 }),
-      () => Streamlit.setComponentValue({
-        'num_clicks': this.state.numClicks,
-        'console': {
-          'lines': this.canvas?.getSaveData(),
-          'debug': JSON.parse(
-            JSON.stringify(args, getCircularReplacer())),
-        },
+      () => this.setComponentValue(this.state, {
+        'lines': this.canvasDraw?.getSaveData(),
+        'canvasDraw': (this.canvasDraw as any).canvas,
+        //'canvasDraw': (this.canvasDraw as any).canvas.context.getImageData(10, 10, 50, 50),
       })
     )
   }
