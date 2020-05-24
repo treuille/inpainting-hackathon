@@ -4,6 +4,7 @@ import {
   StreamlitComponentBase,
   Streamlit,
 } from "./streamlit"
+import CanvasDraw from "react-canvas-draw";
 
 // We import bootstrap.css and streamlit.css to get some simple default
 // styling for our text and button. You can remove or replace these!
@@ -32,12 +33,14 @@ class MaskInput extends StreamlitComponentBase<State> {
 
     // variable, and send its new value back to Streamlit, where it'll
     // be available to the Python program.
+    // https://github.com/embiem/react-canvas-draw/blob/master/demo/src/index.
     return (
       <>
         <div>Hello, {name}!!!</div>
         <button onClick={this.onClicked} disabled={this.props.disabled}>
           Click Me!
         </button>
+        <CanvasDraw />
       </>
     )
   }
