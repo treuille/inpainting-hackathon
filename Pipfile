@@ -7,7 +7,7 @@ verify_ssl = true
 
 [packages]
 opencv-python-headless = "*"
-streamlit = "*"
+streamlit = {path = "./streamlit-0.59.0-py2.py3-none-any.whl"}
 
 [requires]
 python_version = "3.8"
