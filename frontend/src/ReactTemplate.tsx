@@ -28,8 +28,8 @@ class ReactTemplate extends StreamlitComponentBase<State> {
     // via `this.props.args`. Here, we access the "name" arg.
     const name = this.props.args["name"]
 
-    // Show a button and some text.
     // When the button is clicked, we'll increment our "numClicks" state
+
     // variable, and send its new value back to Streamlit, where it'll
     // be available to the Python program.
     return (
