@@ -9,19 +9,24 @@ MyComponent = st.declare_component(url="http://localhost:3001")
 # you can register the component's static files via the `path` param:
 # MyComponent = st.declare_component(path="component_template/build")
 
-# Add a wrapper function to the component.
+"MyComponent", type(MyComponent)
+
 # This is an optional step that enables you to customize your component's
 # API, pre-process its input args, and post-process its output value.
 @MyComponent
 def create_instance(f, name, key=None):
     return f(name=name, key=key, default=0)
 
+"MyComponent (again)", type(MyComponent), MyComponent
 
 # Register the component. This assigns it a name within the Streamlit
 # namespace. "Declaration" and "registration" are separate steps:
 # generally, the component *creator* will do the declaration part,
 # and a component *user* will do the registration.
 st.register_component("my_component", MyComponent)
+
+"What did we register?", st.my_component
+raise RuntimeError('Early stopping.')
 
 # Create an instance of the component. Arguments we pass here will be
 # available in an "args" dictionary in the component. "default" is a special
