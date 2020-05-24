@@ -31,8 +31,8 @@ st.register_component("my_component", MyComponent)
 # available in an "args" dictionary in the component. "default" is a special
 # argument that specifies the initial return value of my_component, before the
 # user has interacted with it.
-num_clicks = st.my_component("World")
-st.markdown("You've clicked %s times!" % int(num_clicks))
+result = st.my_component("World")
+"The result is:", result
 
 raise RuntimeError('Early stopping.')
 

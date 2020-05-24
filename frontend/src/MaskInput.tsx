@@ -40,8 +40,38 @@ class MaskInput extends StreamlitComponentBase<State> {
         <button onClick={this.onClicked} disabled={this.props.disabled}>
           Click Me!
         </button>
-        <CanvasDraw />
+        <CanvasDraw onChange={this.onCanvasChange} />
       </>
+    )
+  }
+
+  /** Click handler for our "Click Me!" button. */
+  private onCanvasChange = (...args : any[]): void => {
+    // Removes circular refernces from the console obect.
+    const getCircularReplacer = () => {
+      const seen = new WeakSet();
+      return (key: string, value: any) => {
+        if (typeof value === "object" && value !== null) {
+          if (seen.has(value)) {
+            return;
+          }
+          seen.add(value);
+        }
+        return value;
+      };
+    };
+
+    // Set the state properly.
+    this.setState(
+      prevState => ({ numClicks: prevState.numClicks + 200 }),
+      () => Streamlit.setComponentValue({
+        'num_clicks': this.state.numClicks,
+        'console': {
+          'canvas': args[0].canvas.constructor.name,
+          'debug': JSON.parse(
+            JSON.stringify(args, getCircularReplacer())),
+        },
+      })
     )
   }
 
@@ -51,7 +81,10 @@ class MaskInput extends StreamlitComponentBase<State> {
     // Streamlit via `Streamlit.setComponentValue`.
     this.setState(
       prevState => ({ numClicks: prevState.numClicks + 1 }),
-      () => Streamlit.setComponentValue(this.state.numClicks)
+      () => Streamlit.setComponentValue({
+          'num_clicks': this.state.numClicks,
+          'console': 'this.onClicked'
+      })
     )
   }
 }
