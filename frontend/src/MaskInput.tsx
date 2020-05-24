@@ -20,7 +20,7 @@ interface State {
  * you write your rendering logic in the render() function, which is
  * called automatically when appropriate.
  */
-class ReactTemplate extends StreamlitComponentBase<State> {
+class MaskInput extends StreamlitComponentBase<State> {
   public state = { numClicks: 0 }
 
   public render = (): ReactNode => {
@@ -58,4 +58,4 @@ class ReactTemplate extends StreamlitComponentBase<State> {
 // passing arguments from Python -> Component.
 //
 // You don't need to edit withStreamlitConnection (but you're welcome to!).
-export default withStreamlitConnection(ReactTemplate)
+export default withStreamlitConnection(MaskInput)

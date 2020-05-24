@@ -64,11 +64,11 @@
 
 import React from "react"
 import ReactDOM from "react-dom"
-import ReactTemplate from "./ReactTemplate"
+import MaskInput from "./MaskInput"
 
 ReactDOM.render(
   <React.StrictMode>
-    <ReactTemplate />
+    <MaskInput />
   </React.StrictMode>,
   document.getElementById("root")
 )
