@@ -16,6 +16,7 @@
  */
 
 import { ArrowDataframeProto, ArrowTable } from "./ArrowTable"
+import { EventTarget } from "event-target-shim"
 
 /** Data sent in the custom Streamlit render event. */
 export interface RenderData {
