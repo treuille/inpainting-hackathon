@@ -24,6 +24,9 @@ interface State {
 class MaskInput extends StreamlitComponentBase<State> {
   public state = { numClicks: 0 }
 
+  /** A reference to the canvas object so we can get its data. */
+  canvas?: CanvasDraw; 
+  
   public render = (): ReactNode => {
     // Arguments that are passed to the plugin in Python are accessible
     // via `this.props.args`. Here, we access the "name" arg.
@@ -40,7 +43,9 @@ class MaskInput extends StreamlitComponentBase<State> {
         <button onClick={this.onClicked} disabled={this.props.disabled}>
           Click Me!
         </button>
-        <CanvasDraw onChange={this.onCanvasChange} />
+        <CanvasDraw
+          ref={(canvasDraw: CanvasDraw) => (this.canvas = canvasDraw)}
+          onChange={this.onCanvasChange} />
       </>
     )
   }
@@ -67,7 +72,7 @@ class MaskInput extends StreamlitComponentBase<State> {
       () => Streamlit.setComponentValue({
         'num_clicks': this.state.numClicks,
         'console': {
-          'canvas': args[0].canvas.constructor.name,
+          'lines': this.canvas?.getSaveData(),
           'debug': JSON.parse(
             JSON.stringify(args, getCircularReplacer())),
         },
