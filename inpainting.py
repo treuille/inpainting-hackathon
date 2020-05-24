@@ -26,7 +26,6 @@ def create_instance(f, name, key=None):
 st.register_component("my_component", MyComponent)
 
 "What did we register?", st.my_component
-raise RuntimeError('Early stopping.')
 
 # Create an instance of the component. Arguments we pass here will be
 # available in an "args" dictionary in the component. "default" is a special
@@ -34,6 +33,8 @@ raise RuntimeError('Early stopping.')
 # user has interacted with it.
 num_clicks = st.my_component("World")
 st.markdown("You've clicked %s times!" % int(num_clicks))
+
+raise RuntimeError('Early stopping.')
 
 # It can live in the sidebar.
 num_clicks = st.sidebar.my_component("Sidebar")

@@ -34,7 +34,7 @@ class ReactTemplate extends StreamlitComponentBase<State> {
     // be available to the Python program.
     return (
       <>
-        <div>Hello, {name}!</div>
+        <div>Hello, {name}!!!</div>
         <button onClick={this.onClicked} disabled={this.props.disabled}>
           Click Me!
         </button>
