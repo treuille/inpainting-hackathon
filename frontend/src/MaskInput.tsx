@@ -83,8 +83,8 @@ class MaskInput extends StreamlitComponentBase<State> {
   /** Click handler for our "Click Me!" button. */
   private onCanvasChange = (canvasDraw: CanvasDraw): void => {
     const contexts = (canvasDraw as CanvasDrawWithContext).ctx;
-    const width = canvasDraw.props.canvasWidth;
-    const height = canvasDraw.props.canvasHeight;
+    const width = canvasDraw.props.canvasWidth as number;
+    const height = canvasDraw.props.canvasHeight as number;
     
     // Set the state properly.
     this.setState(
