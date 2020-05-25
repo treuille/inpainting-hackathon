@@ -67,57 +67,54 @@ def load_image(url):
     image = image[...,::-1].copy()
     return image
 
-# Register the new mask_input custom component.
-register_mask_input(debug=True)
-mask = st.mask_input(IMG_URL)
-'mask:', mask.dtype
-st.image(mask)
+def get_user_input():
+    """Returns a bunch of input from the sidebar UI."""
+    # The image we're inpainting is hard-coded right now.
+    img = load_image(IMG_URL)
 
-st.image('https://github.com/treuille/inpainting-hackathon/raw/react-canvas-draw/data/emer-sleeping.png')
+    # As the user how they'd like to inpaint.
+    inpainting_methods = [
+        ('Navier-Stokes based method', cv2.INPAINT_NS),
+        ('Method by Alexandru Telea [Telea04]', cv2.INPAINT_TELEA),
+    ]
+    inpainting_method = \
+            st.sidebar.selectbox('Inpainting method', inpainting_methods, format_func=lambda x: x[0])[1]
 
-# Ask the user for the inpainting method.
-inpainting_methods = [
-    ('Navier-Stokes based method', cv2.INPAINT_NS),
-    ('Method by Alexandru Telea [Telea04]', cv2.INPAINT_TELEA),
-]
+    # Ask the user if they'd like to see the mask image.
+    show_mask = st.sidebar.checkbox('Show mask')
 
-method = st.selectbox('Inpainting method', inpainting_methods, format_func=lambda x: x[0])[1]
+    # Return this back
+    return (img, inpainting_method, show_mask)
 
+def main():
+    """Execution starts here."""
+    # Register the new mask_input custom component.
+    register_mask_input(debug=True)
 
-img = load_image(IMG_URL)
-"the loaded image"
-st.image(img)
+    # Title
+    "# Adrien's Inpainting Demo"
 
-"""
-## Result
-"""
+    # Ask the user for input
+    img, inpainting_method, show_mask = get_user_input()
 
-# Create the mask itself
-# mask = np.zeros((img_width, img_height), dtype=np.uint8)
-# mask[mask_x : mask_x + mask_width, mask_y : mask_y + mask_height] = 255
-'mask before', mask.shape
-st.image(mask)
-# mask = np.array([mask, mask, mask]).transpose((1, 2, 0))
-'mask after', mask.shape
-st.image(mask)
-'image shape', img.shape
-result = cv2.inpaint(img, mask, 3, method)
-'result'
-st.image(result)
+    # Get the mask.
+    '## Input'
+    mask = st.mask_input(IMG_URL)
 
+    # Perform the inpainting.
+    if type(mask) != np.ndarray:
+        # Issue a warning if there's no mask.
+        st.warning('Draw on the image above to perform inpainting.')
+    else:
+        # Show the mask if the user requested so.
+        if show_mask:
+            '## Mask'
+            st.image(mask)
 
-raise RuntimeError('Early stopping.')
+        # Where all the magic happens.
+        '## Result'
+        inpainted_image = cv2.inpaint(img, mask, 3, inpainting_method)
+        st.image(inpainted_image)
 
-# # It can live in the sidebar.
-# num_clicks = st.sidebar.mask_input("Sidebar")
-# st.sidebar.markdown("You've clicked %s times!" % int(num_clicks))
-# 
-# name_input = st.text_input("Enter a name", value="Streamlit")
-# 
-# # Use the special "key" argument to assign your component a fixed identity
-# # if you want to change its arguments over time and not have it be
-# # re-created. (If you remove the "key" argument here, then the component will
-# # be re-created whenever a new name is entered in 'name_input', which means
-# # it will lose its current state.)
-# num_clicks = st.mask_input(name_input, key="foo")
-# st.markdown("You've clicked %s times!" % int(num_clicks))
+if __name__ == '__main__':
+    main()
