@@ -53,7 +53,7 @@ class MaskInput extends StreamlitComponentBase<State> {
           onChange={this.onCanvasChange}
           imgSrc={imgUrl}
           canvasWidth={700}
-          canvasHeight={700}
+          canvasHeight={667}
         />
       </>
     )

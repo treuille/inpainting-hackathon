@@ -5,6 +5,7 @@ import streamlit as st
 import numpy as np
 import base64
 import cv2
+import requests
 
 # Declare a Streamlit component.
 # It will be served by the local webpack dev server that you can
@@ -55,12 +56,58 @@ st.image(image)
 'mininum', np.amin(image.flat)
 'maximum', np.amax(image.flat)
 
-mask = np.zeros(image.shape[:2], dtype=np.int32)
+mask = np.zeros(image.shape[:2], dtype=np.uint8)
 mask[image[:,:,0] > 0] = 255
 'mask:', mask.dtype
 st.image(mask)
 
 st.image('https://github.com/treuille/inpainting-hackathon/raw/react-canvas-draw/data/emer-sleeping.png')
+
+# Ask the user for the inpainting method.
+inpainting_methods = [
+    ('Navier-Stokes based method', cv2.INPAINT_NS),
+    ('Method by Alexandru Telea [Telea04]', cv2.INPAINT_TELEA),
+]
+
+method = st.selectbox('Inpainting method', inpainting_methods, format_func=lambda x: x[0])[1]
+
+def url_to_image(url):
+    # download the image, convert it to a NumPy array, and then read
+    # it into OpenCV format
+
+    # resp = urllib.urlopen(url)
+    # image = np.asarray(bytearray(resp.read()), dtype="uint8")
+
+    r = requests.get(img_url)
+    image = np.asarray(bytearray(r.content), dtype="uint8")
+    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    'image shape before', image.shape
+    image = image[...,::-1].copy()
+    'image shape after', image.shape
+    # return the image
+    return image
+
+img = url_to_image(img_url)
+"the loaded image"
+st.image(img)
+
+"""
+## Result
+"""
+
+# Create the mask itself
+# mask = np.zeros((img_width, img_height), dtype=np.uint8)
+# mask[mask_x : mask_x + mask_width, mask_y : mask_y + mask_height] = 255
+'mask before', mask.shape
+st.image(mask)
+# mask = np.array([mask, mask, mask]).transpose((1, 2, 0))
+'mask after', mask.shape
+st.image(mask)
+'image shape', img.shape
+result = cv2.inpaint(img, mask, 3, method)
+'result'
+st.image(result)
+
 
 raise RuntimeError('Early stopping.')
 
