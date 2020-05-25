@@ -99,6 +99,7 @@ class MaskInput extends StreamlitComponentBase<State> {
           'blah': 123,
           'width': width,
           'height': height,
+          'canvas': contexts.drawing.canvas.toDataURL()
         };
 
         this.setComponentValue(componentValue, consoleMsg);

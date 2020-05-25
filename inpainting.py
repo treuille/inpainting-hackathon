@@ -37,7 +37,7 @@ st.register_component("my_component", MyComponent)
 result = st.my_component("World")
 'state:', result['value']['state']
 'drawing data len:', len(result['value']['drawing']['data'])
-'consoleMsg:', list(result['consoleMsg'].keys())
+'consoleMsg:', result['consoleMsg']
 
 raise RuntimeError('Early stopping.')
 
