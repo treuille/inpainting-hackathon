@@ -7,48 +7,25 @@ import {
 import CanvasDraw from "react-canvas-draw";
 
   
-// We import bootstrap.css and streamlit.css to get some simple default
-// styling for our text and button. You can remove or replace these!
-import "bootstrap/dist/css/bootstrap.min.css"
+// Give everything a nice Streamlit style.
+// (We're not really using this.)
 import "./streamlit.css"
 
-interface State {
-  numClicks: number
-}
-
+// We need to get to the hidden `ctx` variable in CanvasDraw
+// so we create this type to get at it in a typesafe way.
 interface CanvasDrawWithContext extends CanvasDraw {
   ctx: {
     [key: string]: CanvasRenderingContext2D,
   }
 }
 
-/**
- * This is a React-based component template. It's an alternative to the
- * event-based component pattern. Rather than handling RENDER_EVENT events,
- * you write your rendering logic in the render() function, which is
- * called automatically when appropriate.
- */
-class MaskInput extends StreamlitComponentBase<State> {
-  public state = { numClicks: 0 }
-
+// The custom compnent we created.
+class MaskInput extends StreamlitComponentBase {
   public render = (): ReactNode => {
-    // Arguments that are passed to the plugin in Python are accessible
-    // via `this.props.args`. Here, we access the "name" arg.
     const imgUrl = this.props.args["imgUrl"]
 
-    // When the button is clicked, we'll increment our "numClicks" state
-
-    // variable, and send its new value back to Streamlit, where it'll
-    // be available to the Python program.
-    // https://github.com/embiem/react-canvas-draw/blob/master/demo/src/index.
     return (
       <>
-        <div>
-          img url: {imgUrl}
-        </div>
-        <div>
-          <a href={imgUrl}>the image</a>
-        </div>
         <CanvasDraw
           onChange={this.onCanvasChange}
           imgSrc={imgUrl}
@@ -86,48 +63,29 @@ class MaskInput extends StreamlitComponentBase<State> {
     })
   }
 
-  /** Click handler for our "Click Me!" button. */
+  /** Called every time the canvas changes, and sends the mask
+   * back to the Streamlit server. */
   private onCanvasChange = (canvasDraw: CanvasDraw): void => {
     const contexts = (canvasDraw as CanvasDrawWithContext).ctx;
     const width = canvasDraw.props.canvasWidth as number;
     const height = canvasDraw.props.canvasHeight as number;
     
-    // Set the state properly.
-    this.setState(
-      prevState => ({ numClicks: prevState.numClicks + 200 }),
-      () => {
-        const componentValue = {
-            'state': this.state,
-            'canvas': contexts.drawing.canvas.toDataURL()
-        };
+    const componentValue = {
+        'state': this.state,
+        'canvas': contexts.drawing.canvas.toDataURL()
+    };
 
-        let consoleMsg: {[index: string]:any} = {
-          'blah': 123,
-          'width': width,
-          'height': height,
-        };
+    let consoleMsg: {[index: string]:any} = {
+      'blah': 123,
+      'width': width,
+      'height': height,
+    };
 
-        this.setComponentValue(componentValue, consoleMsg);
-      });
-  }
-
-  /** Click handler for our "Click Me!" button. */
-  private onClicked = (): void => {
-    // Increment state.numClicks, and pass the new value back to
-    // Streamlit via `Streamlit.setComponentValue`.
-    this.setState(
-      prevState => ({ numClicks: prevState.numClicks + 1 }),
-      () => Streamlit.setComponentValue({
-          'num_clicks': this.state.numClicks,
-          'console': 'this.onClicked'
-      })
-    )
+    this.setComponentValue(componentValue, consoleMsg);
   }
 }
 
 // "withStreamlitConnection" is a wrapper function. It bootstraps the
 // connection between your component and the Streamlit app, and handles
 // passing arguments from Python -> Component.
-//
-// You don't need to edit withStreamlitConnection (but you're welcome to!).
 export default withStreamlitConnection(MaskInput)
