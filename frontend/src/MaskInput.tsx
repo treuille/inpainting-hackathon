@@ -37,7 +37,7 @@ class MaskInput extends StreamlitComponentBase {
   }
 
     /** Sets the Streamlit component value and sends a consoleMsg. */
-  private setComponentValue = (value: object, consoleMsg: object): void => {
+  private setComponentValue = (value: object, consoleMsg?: object): void => {
     // Removes circular refernces from the console obect.
     const getCircularReplacer = () => {
       const seen = new WeakSet();
@@ -52,8 +52,11 @@ class MaskInput extends StreamlitComponentBase {
       };
     };
     
-    const toJSON = (x: object) => {
-      return  JSON.parse(JSON.stringify(x, getCircularReplacer()));
+    const toJSON = (x?: object) => {
+      if (x == null)
+        return undefined;
+      else
+        return JSON.parse(JSON.stringify(x, getCircularReplacer()));
     }
 
     // Set the state properly.
@@ -67,21 +70,15 @@ class MaskInput extends StreamlitComponentBase {
    * back to the Streamlit server. */
   private onCanvasChange = (canvasDraw: CanvasDraw): void => {
     const contexts = (canvasDraw as CanvasDrawWithContext).ctx;
-    const width = canvasDraw.props.canvasWidth as number;
-    const height = canvasDraw.props.canvasHeight as number;
+    // const width = canvasDraw.props.canvasWidth as number;
+    // const height = canvasDraw.props.canvasHeight as number;
     
     const componentValue = {
         'state': this.state,
         'canvas': contexts.drawing.canvas.toDataURL()
     };
 
-    let consoleMsg: {[index: string]:any} = {
-      'blah': 123,
-      'width': width,
-      'height': height,
-    };
-
-    this.setComponentValue(componentValue, consoleMsg);
+    this.setComponentValue(componentValue)
   }
 }
 
