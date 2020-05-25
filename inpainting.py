@@ -71,6 +71,7 @@ inpainting_methods = [
 
 method = st.selectbox('Inpainting method', inpainting_methods, format_func=lambda x: x[0])[1]
 
+@st.cache
 def url_to_image(url):
     # download the image, convert it to a NumPy array, and then read
     # it into OpenCV format
