@@ -22,7 +22,7 @@ def register_mask_input(debug=True):
     if debug:
         MaskInput = st.declare_component(url="http://localhost:3001")
     else:
-        MaskInput = st.declare_component(path="component_template/build")
+        MaskInput = st.declare_component(path="frontend/build")
     MaskInput(mask_input_wrapper)
     st.register_component("mask_input", MaskInput)
 
@@ -89,7 +89,7 @@ def get_user_input():
 def main():
     """Execution starts here."""
     # Register the new mask_input custom component.
-    register_mask_input(debug=True)
+    register_mask_input(debug=False)
 
     # Title
     "# Adrien's Inpainting Demo"
