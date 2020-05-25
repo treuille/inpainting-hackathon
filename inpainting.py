@@ -1,4 +1,5 @@
 # pylint: disable=E1101
+# pylint: disable=E1120
 
 import streamlit as st
 
