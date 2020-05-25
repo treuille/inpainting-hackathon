@@ -11,15 +11,16 @@ import CanvasDraw from "react-canvas-draw";
 // (We're not really using this.)
 import "./streamlit.css"
 
-// We need to get to the hidden `ctx` variable in CanvasDraw
-// so we create this type to get at it in a typesafe way.
+/** We need to get to the hidden `ctx` variable in CanvasDraw
+ * so we create this type to get at it in a typesafe way. */
 interface CanvasDrawWithContext extends CanvasDraw {
   ctx: {
     [key: string]: CanvasRenderingContext2D,
   }
 }
 
-// The custom compnent we created.
+/** Allows the user to draw a mask and sends the data back to the
+ * Python component as a png data url string. */
 class MaskInput extends StreamlitComponentBase {
   public render = (): ReactNode => {
     const imgUrl = this.props.args["imgUrl"]
@@ -36,8 +37,8 @@ class MaskInput extends StreamlitComponentBase {
     )
   }
 
-    /** Sets the Streamlit component value and sends a consoleMsg. */
-  private setComponentValue = (value: object, consoleMsg?: object): void => {
+  /** Sets the Streamlit component value and sends a consoleMsg. */
+  private setComponentValue = (value: any, consoleMsg?: object): void => {
     // Removes circular refernces from the console obect.
     const getCircularReplacer = () => {
       const seen = new WeakSet();
@@ -70,15 +71,8 @@ class MaskInput extends StreamlitComponentBase {
    * back to the Streamlit server. */
   private onCanvasChange = (canvasDraw: CanvasDraw): void => {
     const contexts = (canvasDraw as CanvasDrawWithContext).ctx;
-    // const width = canvasDraw.props.canvasWidth as number;
-    // const height = canvasDraw.props.canvasHeight as number;
-    
-    const componentValue = {
-        'state': this.state,
-        'canvas': contexts.drawing.canvas.toDataURL()
-    };
-
-    this.setComponentValue(componentValue)
+    const mask = contexts.drawing.canvas.toDataURL();
+    this.setComponentValue(mask);
   }
 }
 

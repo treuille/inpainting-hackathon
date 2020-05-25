@@ -7,11 +7,15 @@ import base64
 import cv2
 import requests
 
+
 ### CONSTANTS ###
+
 
 IMG_URL = "https://raw.githubusercontent.com/treuille/inpainting-hackathon/react-canvas-draw/data/emer-sleeping.png"
 
+
 ### FUNCTIONS ###
+
 
 def register_mask_input(debug=True):
     """Declare the input mask component."""
@@ -19,22 +23,39 @@ def register_mask_input(debug=True):
         MaskInput = st.declare_component(url="http://localhost:3001")
     else:
         MaskInput = st.declare_component(path="component_template/build")
-    MaskInput(create_mask_input)
+    MaskInput(mask_input_wrapper)
     st.register_component("mask_input", MaskInput)
 
-def create_mask_input(mask_input_component, imgUrl, key=None):
-    """The MaskInput component returns a dictionary with two values:
-    `value`, and optionally `consoleMsg`. The latter is a dictionary
-    of debug information. This method strips out consoleMsg 
-    (displaying it if it exists), then returns the underlying
-    `value` object.
-    """
-    default_return_value = {'result': None}
-    result = mask_input_component(imgUrl=imgUrl, key=key,
-                default=default_return_value)
+
+def mask_input_wrapper(mask_input_component, imgUrl, key=None):
+    """Decodes information from the MaskInput component, including
+    decoding a png image into a numpy array of the mask."""
+
+    # Get raw data back from the MaskInput component.
+    result = mask_input_component(imgUrl=imgUrl, key=key, default={})
+
+    # Debug information is stored in the 'consoleMsg' entry.
     if 'consoleMsg' in result:
         st.write('**consoleMsg:**', result['consoleMsg'])
-    return result.get('value')
+
+    # The return value is stored in 'value' which we will convert
+    # from an encoded png image into a numpy array.
+    if 'value' in result:
+        # The mask comes in as a base64 encoded png image.
+        mask_image_b64 = result['value']
+        binary = base64.b64decode(mask_image_b64.split(",")[1])
+        image = np.asarray(bytearray(binary), dtype="uint8")
+        image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+
+        # The mask itself is a single-channel uint8 image which is white
+        # where inpainting should occur, and black everywhere else.
+        mask = np.zeros(image.shape[:2], dtype=np.uint8)
+        mask[image[:,:,0] > 0] = 255
+        return mask
+    else:
+        # No mask has been created to return None
+        return None
+
 
 @st.cache
 def load_image(url):
@@ -46,23 +67,9 @@ def load_image(url):
     image = image[...,::-1].copy()
     return image
 
-
+# Register the new mask_input custom component.
 register_mask_input(debug=True)
-value = st.mask_input(IMG_URL)
-'value:', value
-
-image_b64 = value['canvas'].split(",")[1]
-binary = base64.b64decode(image_b64)
-image = np.asarray(bytearray(binary), dtype="uint8")
-image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-
-'image:', type(image), image.shape 
-st.image(image)
-'mininum', np.amin(image.flat)
-'maximum', np.amax(image.flat)
-
-mask = np.zeros(image.shape[:2], dtype=np.uint8)
-mask[image[:,:,0] > 0] = 255
+mask = st.mask_input(IMG_URL)
 'mask:', mask.dtype
 st.image(mask)
 
