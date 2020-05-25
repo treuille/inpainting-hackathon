@@ -16,7 +16,7 @@ interface State {
   numClicks: number
 }
 
-interface CanvasDrawWithState extends CanvasDraw {
+interface CanvasDrawWithContext extends CanvasDraw {
   ctx: {
     [key: string]: CanvasRenderingContext2D,
   }
@@ -82,18 +82,23 @@ class MaskInput extends StreamlitComponentBase<State> {
 
   /** Click handler for our "Click Me!" button. */
   private onCanvasChange = (canvasDraw: CanvasDraw): void => {
-    const drawContext = (canvasDraw as CanvasDrawWithState).ctx.drawing;
-
+    const contexts = (canvasDraw as CanvasDrawWithContext).ctx;
+    const width = canvasDraw.props.canvasWidth;
+    const height = canvasDraw.props.canvasHeight;
+    
     // Set the state properly.
     this.setState(
       prevState => ({ numClicks: prevState.numClicks + 200 }),
-      () => this.setComponentValue(this.state, {
-        'blah': 123,
-        //'lines': canvasDraw.getSaveData(),
-        'canvasDraw': canvasDraw,
-        'imageData': drawContext.getImageData(0, 0, 10, 10),
-      })
-    )
+      () => {
+        let consoleMsg: {[index: string]:any} = {
+          'blah': 123,
+          'width': width,
+          'height': height,
+        };
+        for (let [name, context] of Object.entries(contexts))
+          consoleMsg[name] = context.getImageData(0, 0, width, height);
+        this.setComponentValue(this.state, consoleMsg);
+      });
   }
 
   /** Click handler for our "Click Me!" button. */
