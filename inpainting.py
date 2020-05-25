@@ -7,43 +7,48 @@ import base64
 import cv2
 import requests
 
-# Declare a Streamlit component.
-# It will be served by the local webpack dev server that you can
-# run via `npm run start`.
-MaskInput = st.declare_component(url="http://localhost:3001")
+### CONSTANTS ###
 
-# Alternately, if you've built a production version of the component,
-# you can register the component's static files via the `path` param:
-# MaskInput = st.declare_component(path="component_template/build")
+IMG_URL = "https://raw.githubusercontent.com/treuille/inpainting-hackathon/react-canvas-draw/data/emer-sleeping.png"
 
-"MaskInput", type(MaskInput)
+### FUNCTIONS ###
 
-# This is an optional step that enables you to customize your component's
-# API, pre-process its input args, and post-process its output value.
-@MaskInput
-def create_instance(f, imgUrl, key=None):
-    result = f(imgUrl=imgUrl, key=key) 
+def register_mask_input(debug=True):
+    """Declare the input mask component."""
+    if debug:
+        MaskInput = st.declare_component(url="http://localhost:3001")
+    else:
+        MaskInput = st.declare_component(path="component_template/build")
+    MaskInput(create_mask_input)
+    st.register_component("mask_input", MaskInput)
+
+def create_mask_input(mask_input_component, imgUrl, key=None):
+    """The MaskInput component returns a dictionary with two values:
+    `value`, and optionally `consoleMsg`. The latter is a dictionary
+    of debug information. This method strips out consoleMsg 
+    (displaying it if it exists), then returns the underlying
+    `value` object.
+    """
+    default_return_value = {'result': None}
+    result = mask_input_component(imgUrl=imgUrl, key=key,
+                default=default_return_value)
     if 'consoleMsg' in result:
         st.write('**consoleMsg:**', result['consoleMsg'])
     return result.get('value')
 
-"MaskInput (again)", type(MaskInput), MaskInput
+@st.cache
+def load_image(url):
+    """Load the image from the URL in RGB format and return
+    it as a numpy array of type np.uint8."""
+    response = requests.get(url)
+    image = np.asarray(bytearray(response.content), dtype=np.uint8)
+    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+    image = image[...,::-1].copy()
+    return image
 
-# Register the component. This assigns it a name within the Streamlit
-# namespace. "Declaration" and "registration" are separate steps:
-# generally, the component *creator* will do the declaration part,
-# and a component *user* will do the registration.
-st.register_component("mask_input", MaskInput)
 
-
-"What did we register?", st.mask_input
-
-# Create an instance of the component. Arguments we pass here will be
-# available in an "args" dictionary in the component. "default" is a special
-# argument that specifies the initial return value of mask_input, before the
-# user has interacted with it.
-img_url = "https://raw.githubusercontent.com/treuille/inpainting-hackathon/react-canvas-draw/data/emer-sleeping.png"
-value = st.mask_input(img_url)
+register_mask_input(debug=True)
+value = st.mask_input(IMG_URL)
 'value:', value
 
 image_b64 = value['canvas'].split(",")[1]
@@ -71,24 +76,8 @@ inpainting_methods = [
 
 method = st.selectbox('Inpainting method', inpainting_methods, format_func=lambda x: x[0])[1]
 
-@st.cache
-def url_to_image(url):
-    # download the image, convert it to a NumPy array, and then read
-    # it into OpenCV format
 
-    # resp = urllib.urlopen(url)
-    # image = np.asarray(bytearray(resp.read()), dtype="uint8")
-
-    r = requests.get(img_url)
-    image = np.asarray(bytearray(r.content), dtype="uint8")
-    image = cv2.imdecode(image, cv2.IMREAD_COLOR)
-    'image shape before', image.shape
-    image = image[...,::-1].copy()
-    'image shape after', image.shape
-    # return the image
-    return image
-
-img = url_to_image(img_url)
+img = load_image(IMG_URL)
 "the loaded image"
 st.image(img)
 
