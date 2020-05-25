@@ -9,40 +9,43 @@ import cv2
 # Declare a Streamlit component.
 # It will be served by the local webpack dev server that you can
 # run via `npm run start`.
-MyComponent = st.declare_component(url="http://localhost:3001")
+MaskInput = st.declare_component(url="http://localhost:3001")
 
 # Alternately, if you've built a production version of the component,
 # you can register the component's static files via the `path` param:
-# MyComponent = st.declare_component(path="component_template/build")
+# MaskInput = st.declare_component(path="component_template/build")
 
-"MyComponent", type(MyComponent)
+"MaskInput", type(MaskInput)
 
 # This is an optional step that enables you to customize your component's
 # API, pre-process its input args, and post-process its output value.
-@MyComponent
-def create_instance(f, name, key=None):
-    return f(name=name, key=key, default=0)
+@MaskInput
+def create_instance(f, imgUrl, key=None):
+    result = f(imgUrl=imgUrl, key=key) 
+    if 'consoleMsg' in result:
+        st.write('**consoleMsg:**', result['consoleMsg'])
+    return result.get('value')
 
-"MyComponent (again)", type(MyComponent), MyComponent
+"MaskInput (again)", type(MaskInput), MaskInput
 
 # Register the component. This assigns it a name within the Streamlit
 # namespace. "Declaration" and "registration" are separate steps:
 # generally, the component *creator* will do the declaration part,
 # and a component *user* will do the registration.
-st.register_component("my_component", MyComponent)
+st.register_component("mask_input", MaskInput)
 
-"What did we register?", st.my_component
+
+"What did we register?", st.mask_input
 
 # Create an instance of the component. Arguments we pass here will be
 # available in an "args" dictionary in the component. "default" is a special
-# argument that specifies the initial return value of my_component, before the
+# argument that specifies the initial return value of mask_input, before the
 # user has interacted with it.
-result = st.my_component("World")
-'state:', result['value']['state']
-'consoleMsg:', result['consoleMsg']
+img_url = "https://raw.githubusercontent.com/treuille/inpainting-hackathon/react-canvas-draw/data/emer-sleeping.png"
+value = st.mask_input(img_url)
+'value:', value
 
-dataurl = result['value']['canvas']
-image_b64 = dataurl.split(",")[1]
+image_b64 = value['canvas'].split(",")[1]
 binary = base64.b64decode(image_b64)
 image = np.asarray(bytearray(binary), dtype="uint8")
 image = cv2.imdecode(image, cv2.IMREAD_COLOR)
@@ -57,10 +60,12 @@ mask[image[:,:,0] > 0] = 255
 'mask:', mask.dtype
 st.image(mask)
 
+st.image('https://github.com/treuille/inpainting-hackathon/raw/react-canvas-draw/data/emer-sleeping.png')
+
 raise RuntimeError('Early stopping.')
 
 # # It can live in the sidebar.
-# num_clicks = st.sidebar.my_component("Sidebar")
+# num_clicks = st.sidebar.mask_input("Sidebar")
 # st.sidebar.markdown("You've clicked %s times!" % int(num_clicks))
 # 
 # name_input = st.text_input("Enter a name", value="Streamlit")
@@ -70,5 +75,5 @@ raise RuntimeError('Early stopping.')
 # # re-created. (If you remove the "key" argument here, then the component will
 # # be re-created whenever a new name is entered in 'name_input', which means
 # # it will lose its current state.)
-# num_clicks = st.my_component(name_input, key="foo")
+# num_clicks = st.mask_input(name_input, key="foo")
 # st.markdown("You've clicked %s times!" % int(num_clicks))

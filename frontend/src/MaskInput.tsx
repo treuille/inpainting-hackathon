@@ -34,7 +34,7 @@ class MaskInput extends StreamlitComponentBase<State> {
   public render = (): ReactNode => {
     // Arguments that are passed to the plugin in Python are accessible
     // via `this.props.args`. Here, we access the "name" arg.
-    const name = this.props.args["name"]
+    const imgUrl = this.props.args["imgUrl"]
 
     // When the button is clicked, we'll increment our "numClicks" state
 
@@ -43,12 +43,18 @@ class MaskInput extends StreamlitComponentBase<State> {
     // https://github.com/embiem/react-canvas-draw/blob/master/demo/src/index.
     return (
       <>
-        <div>Hello, {name}!!!</div>
-        <button onClick={this.onClicked} disabled={this.props.disabled}>
-          Click Me!
-        </button>
+        <div>
+          img url: {imgUrl}
+        </div>
+        <div>
+          <a href={imgUrl}>the image</a>
+        </div>
         <CanvasDraw
-          onChange={this.onCanvasChange} />
+          onChange={this.onCanvasChange}
+          imgSrc={imgUrl}
+          canvasWidth={700}
+          canvasHeight={700}
+        />
       </>
     )
   }
