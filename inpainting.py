@@ -35,7 +35,9 @@ st.register_component("my_component", MyComponent)
 # argument that specifies the initial return value of my_component, before the
 # user has interacted with it.
 result = st.my_component("World")
-"The result is:", result
+'state:', result['value']['state']
+'drawing data len:', len(result['value']['drawing']['data'])
+'consoleMsg:', list(result['consoleMsg'].keys())
 
 raise RuntimeError('Early stopping.')
 
