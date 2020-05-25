@@ -92,14 +92,14 @@ class MaskInput extends StreamlitComponentBase<State> {
       () => {
         const componentValue = {
             'state': this.state,
-            'drawing': contexts.drawing.getImageData(0, 0, width, 10),
+          //'drawing': contexts.drawing.getImageData(0, 0, width, 10),
+            'canvas': contexts.drawing.canvas.toDataURL()
         };
 
         let consoleMsg: {[index: string]:any} = {
           'blah': 123,
           'width': width,
           'height': height,
-          'canvas': contexts.drawing.canvas.toDataURL()
         };
 
         this.setComponentValue(componentValue, consoleMsg);

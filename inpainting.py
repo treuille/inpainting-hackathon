@@ -2,6 +2,9 @@
 # pylint: disable=E1120
 
 import streamlit as st
+import numpy as np
+import base64
+import cv2
 
 # Declare a Streamlit component.
 # It will be served by the local webpack dev server that you can
@@ -36,8 +39,18 @@ st.register_component("my_component", MyComponent)
 # user has interacted with it.
 result = st.my_component("World")
 'state:', result['value']['state']
-'drawing data len:', len(result['value']['drawing']['data'])
 'consoleMsg:', result['consoleMsg']
+
+dataurl = result['value']['canvas']
+image_b64 = dataurl.split(",")[1]
+binary = base64.b64decode(image_b64)
+image = np.asarray(bytearray(binary), dtype="uint8")
+image = cv2.imdecode(image, cv2.IMREAD_COLOR)
+
+'image:', type(image), image.shape 
+st.image(image)
+'mininum', np.amin(image.flat)
+'maximum', np.amax(image.flat)
 
 raise RuntimeError('Early stopping.')
 
