@@ -6,6 +6,7 @@ import {
 } from "./streamlit"
 import CanvasDraw from "react-canvas-draw";
 
+  
 // We import bootstrap.css and streamlit.css to get some simple default
 // styling for our text and button. You can remove or replace these!
 import "bootstrap/dist/css/bootstrap.min.css"
@@ -13,6 +14,12 @@ import "./streamlit.css"
 
 interface State {
   numClicks: number
+}
+
+interface CanvasDrawWithState extends CanvasDraw {
+  ctx: {
+    [key: string]: CanvasRenderingContext2D,
+  }
 }
 
 /**
@@ -24,9 +31,6 @@ interface State {
 class MaskInput extends StreamlitComponentBase<State> {
   public state = { numClicks: 0 }
 
-  /** A reference to the canvas object so we can get its data. */
-  canvasDraw?: CanvasDraw; 
-  
   public render = (): ReactNode => {
     // Arguments that are passed to the plugin in Python are accessible
     // via `this.props.args`. Here, we access the "name" arg.
@@ -44,7 +48,6 @@ class MaskInput extends StreamlitComponentBase<State> {
           Click Me!
         </button>
         <CanvasDraw
-          ref={(canvasDraw: CanvasDraw) => (this.canvasDraw = canvasDraw)}
           onChange={this.onCanvasChange} />
       </>
     )
@@ -58,7 +61,7 @@ class MaskInput extends StreamlitComponentBase<State> {
       return (_key: string, value: any) => {
         if (typeof value === "object" && value !== null) {
           if (seen.has(value)) {
-            return;
+            return '[REPEAT VALUE]';
           }
           seen.add(value);
         }
@@ -78,14 +81,17 @@ class MaskInput extends StreamlitComponentBase<State> {
   }
 
   /** Click handler for our "Click Me!" button. */
-  private onCanvasChange = (..._args : any[]): void => {
+  private onCanvasChange = (canvasDraw: CanvasDraw): void => {
+    const drawContext = (canvasDraw as CanvasDrawWithState).ctx.drawing;
+
     // Set the state properly.
     this.setState(
       prevState => ({ numClicks: prevState.numClicks + 200 }),
       () => this.setComponentValue(this.state, {
-        'lines': this.canvasDraw?.getSaveData(),
-        'canvasDraw': (this.canvasDraw as any).canvas,
-        //'canvasDraw': (this.canvasDraw as any).canvas.context.getImageData(10, 10, 50, 50),
+        'blah': 123,
+        //'lines': canvasDraw.getSaveData(),
+        'canvasDraw': canvasDraw,
+        'imageData': drawContext.getImageData(0, 0, 10, 10),
       })
     )
   }
