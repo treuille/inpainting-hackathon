@@ -89,7 +89,7 @@ def get_user_input():
 def main():
     """Execution starts here."""
     # Register the new mask_input custom component.
-    register_mask_input(debug=False)
+    register_mask_input(debug=True)
 
     # Title
     "# Adrien's Inpainting Demo"
