@@ -11,7 +11,7 @@ import requests
 ### CONSTANTS ###
 
 
-IMG_URL = "https://raw.githubusercontent.com/treuille/inpainting-hackathon/react-canvas-draw/data/emer-sleeping.png"
+IMG_URL = "https://raw.githubusercontent.com/treuille/inpainting-hackathon/master/data/emer-sleeping.png"
 
 
 ### FUNCTIONS ###
